@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>قبض نقدية</title>
+
+  <!-- أيقونات: نسخة واحدة فقط -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    .btns-area { display:flex; justify-content:flex-end; align-items:center; margin-top:-5px; margin-right:10px; gap:8px; }
+    .search-area { position:relative; margin-left:auto; }
+    #search-box { width:250px; padding:8px 35px 8px 12px; font-size:14px; border:1px solid #ccc; border-radius:20px; outline:none; text-align:right; }
+    #search-box:focus { border-color:#792e2e; box-shadow:0 0 5px rgba(121,46,46,0.4); }
+    .search-area i { position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#792e2e; font-size:16px; }
+    .pro-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; flex-direction:row-reverse; padding:10px 16px; font-size:15px; font-weight:bold; border:1px solid #ccc; border-radius:10px; background:transparent; color:#792e2e; cursor:pointer; width:90px; }
+    .pro-btn:hover { background:#e0e0e0; color:#000; transform:translateY(-2px); }
+
+    .cash-header { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:15px; margin:20px; }
+    .header-item { display:flex; flex-direction:column; font-size:14px; color:#333; }
+    .header-item input,.header-item textarea { padding:8px; border:1px solid #ccc; border-radius:8px; outline:none; }
+    .header-item input:focus,.header-item textarea:focus { border-color:#792e2e; box-shadow:0 0 5px rgba(121,46,46,0.4); }
+
+    .details-section { margin: 20px; }
+    .excel-like { width:100%; border-collapse:collapse; }
+    .excel-like th {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: center;
+    background-color: #1976d2; /* لون الخلفية للرأس */
+    color: #fff;               /* لون النص */
+    font-weight: bold;
+}
+
+.excel-like td input {    
+    width: 100%;              /* يملأ مساحة الخلية بالكامل */
+    height: 35px;             /* ارتفاع مناسب للكتابة */
+    padding: 0;               /* نص مركّز، بدون بادينج إضافي */
+    box-sizing: border-box;   /* البادينج محسوب داخل العرض */
+    border: 1px solid #ccc;   /* الحدود */
+    border-radius: 2px;
+    text-align: center;       /* مركّز أفقي */
+    display: flex;
+    justify-content: center;
+    align-items: center;      /* مركّز عمودي */
+    font-size: 14px; 
+}
+
+.excel-like td .delete-row,
+.excel-like td .attachment-btn {   /* غيرت .attachment لـ .attachment-btn اللي ظاهر */
+    border: 1px solid #ccc;   
+    border-radius: 2px;
+    width: 100%;
+    height: 35px;
+    display: flex;
+    justify-content: center;  
+    align-items: center;      
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #fff;  /* عشان الحدود تبان */
+}
+
+
+    .excel-like th:nth-child(2),
+    .excel-like td:nth-child(2) {
+    width: 120px; /* ضبّط الرقم حسب اللي تحبه */
+     }
+
+      /* ضبط input جوه الخلية */
+    .excel-like td:nth-child(2) input {
+    width: 140px;   /* أقل من عرض الخلية شوية */
+    padding: 2px;  /* لتصغير المساحة الداخلية */
+     }
+
+    .excel-like th:nth-child(3),
+    .excel-like td:nth-child(3) {
+    width: 450px; /* ضبّط الرقم حسب اللي تحبه */
+     }
+
+      /* ضبط input جوه الخلية */
+    .excel-like td:nth-child(3) input {
+    width: 490px;   /* أقل من عرض الخلية شوية */
+    padding: 2px;  /* لتصغير المساحة الداخلية */
+     }
+
+
+
+    .add-row { margin-top:8px; padding:6px 10px; background:#1976d2; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+    .add-row:hover { background:#1565c0; }
+    .delete-row { background:#f5f5f5; border:1px solid #ccc; border-radius:4px; cursor:pointer; padding:4px 8px; }
+    .delete-row i { color:#c62828; }
+</style>
+</head>
+<body>
+
+<form method="POST" action="/save_receipt" enctype="multipart/form-data">
+  <div class="btns-area">
+
+    <div class="search-area">
+      <input type="text" id="search-box" placeholder="بحث..." />
+      <i class="fas fa-search"></i>
+    </div>
+
+    <button type="button" class="pro-btn">
+      <i class="fas fa-plus"></i> جديد
+    </button>
+
+    <button type="button" class="pro-btn">
+      <i class="fas fa-print"></i> طباعة
+    </button>
+
+    <button type="submit" class="pro-btn">
+      <i class="fas fa-floppy-disk"></i> حفظ
+    </button>
+
+    <button type="button" class="pro-btn">
+      <i class="fas fa-trash"></i> حذف
+    </button>
+
+    <button type="button" class="pro-btn">
+      <i class="fas fa-paperclip"></i>
+    </button>
+
+  </div>
+  
+<div class="cash-header">
+  <div class="header-item"><span>GeneralEntryNo</span><input type="number" name="GeneralEntryNo"></div>
+  <div class="header-item"><span>DepartmentEntryNo</span><input type="number" name="DepartmentEntryNo"></div>
+  <div class="header-item"><span>Transaction</span><input type="number" name="TranscationType"></div>
+  <div class="header-item"><span>Movement</span><input type="number" name="MovementType"></div>
+  <div class="header-item"><span>عدد مرات الطباعة</span><input type="number" name="PrintCopies"></div>
+
+  <div class="header-item"><span>Status</span><input type="number" name="Status"></div>
+
+  <div class="header-item"><span>حساب الدائن</span><input type="number" name="Credit_Acc"></div>
+
+  <div class="header-item"><span>وقت التسجيل</span><input type="date" name="EditTime"></div>
+  <div class="header-item"><span>أخر تعديل علي الاذن</span><input type="date" name="LastEdit"></div>
+
+  <div class="header-item"><span>رقم الإيصال</span><input type="text" name="ReceiptNo"></div>
+
+  <div class="header-item"><span>القسم</span><input type="text" name="DepartmentID"></div>
+  <div class="header-item"><span>الفرع</span><input type="text" name="BranchID"></div>
+  <div class="header-item"><span>المستخدم</span><input type="text" name="UserID"></div>
+
+  <div class="header-item"><span>المبلغ</span><input type="number" step="0.01" name="Amount"></div>
+  <div class="header-item"><span>التاريخ</span><input type="date" name="DATE"></div>
+  <div class="header-item"><span>ملاحظات</span><textarea name="Notes"></textarea></div>
+</div>
+
+  <div class="details-section">
+    <h3>تفاصيل الإيصال</h3>
+    <table id="detailsTable" class="excel-like">
+  <thead>
+    <tr>
+      <th style="display:none;">GeneralEntryNo</th>
+      <th>المبلغ</th> <!-- Amount1 -->
+      <th> البيان</th> <!-- ItemNote -->
+      <th>اسم الحساب</th> <!-- Debit -->
+      <th>مرفقات</th> <!-- Attachment -->
+      <th>حذف</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+  <td style="display:none;">
+    <input type="number" name="GeneralEntryNo[]">
+  </td>
+
+  <td>
+    <input type="number" step="0.01" name="Amount1[]">
+  </td>
+
+  <td>
+    <input type="text" name="ItemNote[]">
+  </td>
+
+  <td>
+    <input type="number" name="Debit[]">
+  </td>
+
+  <td>
+    <label class="attachment-label attachment-btn" style="cursor:pointer;">
+      <i class="fas fa-paperclip"></i>
+      <input type="file" name="Attachment" style="display:none;" />
+    </label>
+  </td>
+
+  <td>
+    <button type="button" class="delete-row" title="حذف الصف">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+  </td>
+</tr>
+  </tbody>
+</table>
+<button type="button" id="addRowBtn" class="add-row">➕ إضافة </button>
+
+  </div>
+
+<script>
+function initCashReceive() {
+    const addBtn = document.getElementById("addRowBtn");
+    const tbody = document.querySelector("#detailsTable tbody");
+
+    // ضمان وجود العناصر
+    if (!addBtn || !tbody || !tbody.rows.length) {
+        console.warn("تحقق من وجود addRowBtn و detailsTable وصف واحد داخل tbody.");
+        return;
+    }
+
+    // إضافة صف جديد
+    addBtn.addEventListener("click", function () {
+        const templateRow = tbody.rows[0];
+        const newRow = templateRow.cloneNode(true);
+
+        // تفريغ القيم
+        newRow.querySelectorAll("input").forEach(input => {
+            input.value = "";
+        });
+
+        tbody.appendChild(newRow);
+    });
+
+    // حذف صف
+    document.addEventListener("click", function (e) {
+        const delBtn = e.target.closest(".delete-row");
+        if (!delBtn) return;
+
+        const row = delBtn.closest("tr");
+        if (tbody.rows.length > 1) {
+            row.remove();
+        } else {
+            alert("لا يمكن حذف كل الصفوف، لابد من وجود صف واحد على الأقل.");
+        }
+    });
+}
+</script>
+
+</form>
+<script>
+document.querySelector("form").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    let res = await fetch("/save_receipt", {
+        method: "POST",
+        body: formData
+    });
+
+    let data = await res.json();
+
+    alert(data.message);
+
+    if(data.success){
+        this.reset(); // 👈 تفريغ كل الحقول
+
+        // تفريغ جدول التفاصيل
+document.querySelector("#detailsTable tbody").innerHTML = `
+<tr>
+  <td style="display:none;">
+    <input type="number" name="GeneralEntryNo[]">
+  </td>
+
+  <td>
+    <input type="number" step="0.01" name="Amount1[]">
+  </td>
+
+  <td>
+    <input type="text" name="ItemNote[]">
+  </td>
+
+  <td>
+    <input type="number" name="Debit[]">
+  </td>
+
+  <td>
+    <label class="attachment-label attachment-btn" style="cursor:pointer;">
+      <i class="fas fa-paperclip"></i>
+      <input type="file" name="Attachment" style="display:none;" />
+    </label>
+  </td>
+
+  <td>
+    <button type="button" class="delete-row">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+  </td>
+</tr>
+`;
+    }
+});
+window.onload = function () {
+    initCashReceive();
+};
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        const tag = e.target.tagName.toLowerCase();
+
+        if (tag === "input" || tag === "textarea") {
+            e.preventDefault();
+        }
+    }
+});
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        const inputs = Array.from(document.querySelectorAll("input, textarea"));
+        const index = inputs.indexOf(document.activeElement);
+
+        if (index > -1) {
+            e.preventDefault();
+
+            const next = inputs[index + 1];
+            if (next) {
+                next.focus();
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>

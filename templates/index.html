@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>الصفحة الرئيسية</title>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    direction: rtl;
+}
+.container {
+    display: flex;
+    width: 100%;
+    
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #496985;
+    color: #ecf0f1;
+
+    position: fixed;
+    top: 48px;
+    right: 0;
+
+    height: calc(100vh - 48px);
+
+    overflow-y: auto;
+    padding: 10px;
+    z-index: 1000;
+
+    transition: width 0.3s ease;
+}
+    
+    
+
+.sidebar .logo img {
+    width: 200px;
+    height: auto;
+    border-radius: 10px;
+}
+.sidebar ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 0; /* 👈 شيلنا النزول من كل القوائم */
+    padding-right: 0;
+}
+
+/* 👇 ده الجديد - للقائمة الرئيسية بس */
+.sidebar > ul {
+    margin-top: 30px;
+}
+
+.sidebar ul li {
+    padding: 5px 0;
+}
+.menu-title {
+    font-size: 18px;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 5px ;
+    font-weight: bold;
+    position: relative;
+    transition: background-color 0.3s, color 0.3s;
+    padding-right: 45px ;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    
+}
+.menu-title::before {
+    content: "";
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 8px;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 6px solid #ecf0f1;
+    transition: transform 0.3s, border-left-color 0.3s;
+    transform-origin: center;
+}
+.menu-title:hover {
+    background-color: #f5f6f7;
+    color: #2c3e50;
+}
+.menu-title:hover::before {
+    border-left-color: #2c3e50;
+}
+.menu-title.active::before {
+    transform: rotate(90deg);
+}
+.submenu {
+    display: none;
+    margin-right: 45px;   /* 👈 بدل padding */
+    margin-top: 0;
+    padding-top: 0;
+
+
+}
+.submenu li a, .submenu li span.menu-title {
+    font-size: 16px;
+    color: #eff15b;
+    font-weight: bold;
+    text-decoration: none;
+}
+.submenu li a:hover, .submenu li span.menu-title:hover {
+    text-decoration: underline;
+}
+.submenu li ul li a, .submenu li ul li span.menu-title {
+    font-size: 15px;
+    color: #29e729;
+    font-weight: bold;
+}
+.submenu li ul li a:hover, .submenu li ul li span.menu-title:hover {
+    text-decoration: underline;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-right: 270px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 20px;
+    position: relative;
+    min-width: 0;
+
+    transition: margin-right 0.3s ease;
+}
+.sidebar.collapsed {
+    width: 30px !important;
+    overflow: hidden;
+}
+
+.sidebar.collapsed + .main-content {
+    margin-right: 40px;
+}
+
+/* User Header */
+.user-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 28px;
+    z-index: 9999;
+}
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* المسافة بين الصورة والاسم */
+}
+
+.user-icons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+}
+
+.user-icons i {
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            color: #0d5aa7; /* ممكن تغيّر اللون */
+}
+
+#toggle-sidebar {
+  font-size: 22px;              /* حجم السهم */
+  cursor: pointer;
+  background: #496985;          /* نفس لون السايد بار */
+  border: none;
+  border-radius: 50%;           /* يخليه دايرة */
+  color: #ffffff;               /* لون السهم أبيض */
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;           /* علشان نتحكم في مكانه */
+  top: 50px;
+  right: 220px;                  /* نصه بره القايمة */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+
+
+}
+#toggle-sidebar:hover {
+    color: #ccc;
+}
+
+.sidebar.collapsed {
+    width: 30px !important;
+    transition: width 0.3s;
+    overflow: hidden;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+.user-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Content Area */
+.content-area {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    min-height: 500px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    margin-top: 70px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    height: calc(100vh - 150px); /* نضيف ده */
+}
+.submenu > li > .menu-title:hover,
+.submenu > li > a:hover {
+    background-color: transparent;
+    color: #f1c40f;
+}
+.menu-icon{
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+
+}
+
+.page-title-bar {
+    background-color: #038350f3;
+    color: white;
+
+    padding: 8px 15px;
+
+    font-size: 16px;
+    font-weight: bold;
+    right: 270px;
+    left: 0;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    position: fixed;
+    top: 49px;   /* نفس ارتفاع الـ user-header */
+
+    z-index: 999;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <button id="toggle-sidebar">➤</button>
+        
+        
+        <ul class="menu">
+            <!-- الأجور والموارد البشرية -->
+            <li>
+                <span class="menu-title" >
+                <i class="menu-icon fa-solid fa-user-group" title="الأجور والموارد البشرية"></i>
+                 الأجور والموارد البشرية 
+                 </span>
+                <ul class="submenu">
+                    <li><a href="#">الموظفين</a></li>
+                    <li><a href="#">موظف جديد</a></li>
+                    <li><a href="#">إعدادات الأجور</a></li>
+                    <li><a href="#">إدراج شهر</a></li>
+                    <li><a href="#">ترحيل تسويات</a></li>
+                    <li><a href="#">حضور وانصراف</a></li>
+                    <li><a href="#">مهمة إقفال الشهر</a></li>
+                    <li><a href="#">حذف شهر لموظف</a></li>
+                </ul>
+            </li>
+            <!-- المخزون -->
+            <li>
+           <span class="menu-title">
+        <i class="menu-icon fa-solid fa-boxes-stacked "title="المخزون"></i>
+        المخزون
+        </span>
+        <ul class="submenu">
+        <li><a href="#">الأصناف</a></li>
+        <li><a href="#">صنف جديد</a></li>
+        <li><a href="#">إضافة خامة</a></li>
+        <li><a href="#">صرف خامة</a></li>
+        <li><a href="#">إضافة منتج</a></li>
+        <li><a href="#">صرف منتج</a></li>
+        <li><a href="#">المرتجعات</a></li>
+        <li><a href="#">مراكز التكلفة</a></li>
+    </ul>
+</li>
+            <!-- المبيعات -->
+            <li>
+            <span class="menu-title">
+            <i class="menu-icon fa-solid fa-cart-shopping "title="المبيعات"></i>
+             المبيعات
+            </span>
+        <ul class="submenu">
+        <li><a href="#">عرض سعر</a></li>
+        <li><a href="#">عقد بيع</a></li>
+        <li><a href="#">فاتورة بيع</a></li>
+        <li><a href="#">فاتورة مبيعات ضريبية</a></li>
+        <li><a href="#">المرتجعات</a></li>
+    </ul>
+</li>
+            <!-- الموردين -->
+            <li>
+            <span class="menu-title">
+            <i class="menu-icon fa-solid fa-truck" title="الموردين"></i>
+             الموردين
+            </span>
+        <ul class="submenu">
+        <li><a href="#">الموردين</a></li>
+        <li><a href="#">مورد جديد</a></li>
+    </ul>
+</li>
+            <!-- العملاء -->
+           <li>
+           <span class="menu-title">
+           <i class="menu-icon fa-solid fa-users"title="العملاء"></i>
+            العملاء
+            </span>
+         <ul class="submenu">
+        <li><a href="#">العملاء</a></li>
+        <li><a href="#">عميل جديد</a></li>
+    </ul>
+</li>
+            <!-- الخزينة -->
+            <li>
+            <span class="menu-title">
+            <i class="menu-icon fa-solid fa-vault" title="الخزينة"></i>
+             الخزينة
+            </span>
+        <ul class="submenu">
+        <li><a href="#cash_receive" data-title="قبض النقدية" data-path="الرئيسية 🡄 الخزينة">قبض نقدية</a></li>
+        <li><a href="#">صرف نقدية</a></li>
+        <li><a href="#">استلام شيك</a></li>
+        <li><a href="#">صرف شيك</a></li>
+        <li><a href="#">عهدة جديدة</a></li>
+        <li><a href="#">تسوية عهدة</a></li>
+        </ul>
+        </li>
+            <!-- المالية -->
+            <li>
+            <span class="menu-title">
+            <i class="menu-icon fa-solid fa-chart-line" title="المالية"></i>
+             المالية
+            </span>
+            <ul class="submenu">
+        <li><a href="#">قيود اليومية</a></li>
+        <li><a href="#">قيد جديد</a></li>
+        <li><a href="#">قيود التسوية</a></li>
+        <li><a href="/add_account" data-title="إضافة حساب جديد" data-path="الرئيسية 🡄 المالية">حساب جديد</a></li>
+        <li><a href="account_tree" data-title="شجرة الحسابات" data-path="الرئيسية 🡄 المالية">شجرة الحسابات</a></li>
+        </ul>
+        </li>
+            <!-- التقارير -->
+            <li>
+            <span class="menu-title">
+            <i class="menu-icon fa-solid fa-chart-pie" title="التقارير"></i>
+              التقارير
+         </span>
+
+        <ul class="submenu">
+
+        <li>
+            <span class="menu-title">
+                <i class="menu-icon fa fa-box"></i>
+                المخزون
+            </span>
+            <ul class="submenu">
+                <li><a href="#">الجرد والأرصدة</a></li>
+                <li><a href="#">كارت صنف</a></li>
+                <li><a href="#">مراكز التكلفة</a></li>
+                <li><a href="#">المشتريات حسب المورد</a></li>
+                <li><a href="#">الموردين حسب المشتريات</a></li>
+                <li><a href="#">المبيعات حسب العملاء</a></li>
+                <li><a href="#">العملاء حسب المبيعات</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <span class="menu-title">
+                <i class="menu-icon fa fa-calculator" ></i>
+                المالية
+            </span>
+            <ul class="submenu">
+                <li><a href="#">كشف حساب</a></li>
+                <li><a href="#">ميزان المراجعة</a></li>
+                <li><a href="#">قائمة المركز المالي</a></li>
+                <li><a href="#">قائمة الدخل</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <span class="menu-title">
+                <i class="menu-icon fa fa-users"></i>
+                الأجور
+            </span>
+            <ul class="submenu">
+                <li><a href="#">حضور وانصراف موظف</a></li>
+                <li><a href="#">حضور وانصراف شهري</a></li>
+                <li><a href="#">كشف مستحقات الرواتب</a></li>
+                <li><a href="#">شيت الرواتب</a></li>
+                <li><a href="#">الصافي المدفوع</a></li>
+                <li><a href="#">السلف المجدولة / المقسطة</a></li>
+                <li><a href="#">سلف الموظف المجدولة / المقسطة</a></li>
+            </ul>
+        </li>
+
+    </ul>
+</li>
+            <!-- المستخدمين -->
+        <li>
+        <span class="menu-title">
+        <i class="menu-icon fa fa-users-cog"title="المستخدمين"></i>
+        المستخدمين
+        </span>
+        <ul class="submenu">
+        <li><a href="#">المستخدمين</a></li>
+        <li><a href="#">مستخدم جديد</a></li>
+        <li><a href="#">صلاحيات المستخدمين</a></li>
+        </ul>
+        </li>
+            <!-- إعدادات النظام -->
+        <li>
+        <span class="menu-title">
+        <i class="menu-icon fa fa-gear"title="إعدادات النظام"></i>
+        إعدادات النظام
+        </span>
+        <ul class="submenu"></ul>
+        </li>
+            <!-- إعدادات الحساب -->
+        <li>
+        <span class="menu-title">
+        <i class="menu-icon fa fa-user-gear"title="إعدادات الحساب"></i>
+        إعدادات الحساب
+        </span>
+        <ul class="submenu"></ul>
+        </li>
+        </ul>
+
+       </div>
+        <div class="main-content">
+      <div class="user-header" style="display:flex; justify-content:space-between; align-items:center;">
+
+    <!-- يمين: زرار البانل + اللوجو -->
+    <div style="display:flex; align-items:center; gap:10px;">
+      
+      <div class="header-logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="LOGO" style="height:50px; width:247px;">
+      </div>
+    </div>
+
+    <!-- شمال: بيانات المستخدم -->
+    <div class="user-info" style="display:flex; align-items:center; gap:10px;">
+      <div class="user-icons">
+        <i class="fas fa-globe" title="تغيير اللغة" style="cursor:pointer; margin-left:10px;"></i>
+        <i class="fas fa-bell" title="الإشعارات" style="cursor:pointer; margin-left:10px;"></i>
+      </div>
+      <div class="user-name">صابر بصير</div>
+      <div class="user-avatar">
+        <img src="{{ url_for('static', filename='images/user_saber.png') }}">
+      </div>
+    </div>
+
+  </div>
+      <!-- 👇 البار هنا -->
+<div class="page-title-bar">
+    <span id="page-title">
+        <i class="fas fa-home" style="margin-left: 8px;"></i>
+        الرئيسية
+    </span>
+</div>
+    <!-- 👇 المحتوى هنا -->
+<div class="content-area" style="position: relative; padding-top: 1px;">
+    <!-- البار هيتضاف هنا من (account_tree.html) -->
+</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const sidebar = document.querySelector(".sidebar");
+    const toggleBtn = document.getElementById("toggle-sidebar");
+
+    // فتح/غلق البانل الاحترافي
+    toggleBtn.addEventListener("click", function () {
+        sidebar.classList.toggle("collapsed");
+
+        toggleBtn.textContent =
+            sidebar.classList.contains("collapsed") ? "☰" : "➤";
+
+        document.querySelectorAll(".submenu").forEach(sub => {
+            sub.style.display = "none";
+        });
+
+        document.querySelectorAll(".menu-title").forEach(title => {
+            title.classList.remove("active");
+        });
+
+        if (sidebar.classList.contains("collapsed")) {
+            toggleBtn.style.right = "10px";
+        } else {
+            toggleBtn.style.right = "220px";
+        }
+
+        // الكود الجديد هنا
+        const pageTitleBar = document.querySelector(".page-title-bar");
+        if (sidebar.classList.contains("collapsed")) {
+            pageTitleBar.style.right = "40px";
+        } else {
+            pageTitleBar.style.right = "270px";
+        }
+    });
+
+    // فتح وإغلاق القوائم
+    document.querySelectorAll('.menu-title').forEach(title => {
+        title.addEventListener('click', (e) => {
+
+            const sidebar = document.querySelector(".sidebar");
+
+            // لو البانل مقفول (collapsed) امنع الفتح
+            if (sidebar.classList.contains("collapsed")) {
+                e.preventDefault();
+                return;
+            }
+
+            e.stopPropagation();
+
+            const submenu = title.nextElementSibling;
+            if (submenu && submenu.classList.contains('submenu')) {
+                submenu.style.display = (submenu.style.display === 'block') ? 'none' : 'block';
+                title.classList.toggle('active');
+            }
+        });
+    });
+
+    // فتح صفحة قبض النقدية داخل content-area
+    document.querySelectorAll('a[href="#cash_receive"]').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // تغيير العنوان
+            const title = this.getAttribute('data-title');
+            const path = this.getAttribute('data-path');
+            if (title && path) {
+                setPageTitle(title, path);
+            }
+
+            fetch('/cash_receive')
+                .then(response => response.text())
+                .then(html => {
+                    const content = document.querySelector('.content-area');
+                    content.innerHTML = html;
+
+                    // تشغيل السكربتات الخاصة بالصفحة
+                    const scripts = content.querySelectorAll("script");
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement("script");
+
+                        if (oldScript.src) {
+                            newScript.src = oldScript.src;
+                            newScript.async = false;
+                        } else {
+                            newScript.textContent = oldScript.textContent;
+                        }
+
+                        content.appendChild(newScript);
+                        oldScript.remove();
+                    });
+
+                    // إعادة تشغيل دوال الصفحة بعد التحميل
+                    if (typeof initCashReceive === "function") {
+                        initCashReceive();
+                    }
+
+                })
+                .catch(err => console.error('Error loading cash_receive:', err));
+        });
+    });
+
+    // فتح صفحة إضافة حساب جديد داخل content-area
+    document.querySelectorAll('a[href="/add_account"]').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // تغيير العنوان
+        const title = this.getAttribute('data-title');
+        const path = this.getAttribute('data-path');
+        if (title && path) {
+            setPageTitle(title, path);
+        }
+
+        fetch('/add_account')
+            .then(response => response.text())
+            .then(html => {
+                const content = document.querySelector('.content-area');
+                content.innerHTML = html;
+
+                // ← تشغيل السكربتات الخاصة بالصفحة
+                const scripts = content.querySelectorAll("script");
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement("script");
+
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                        newScript.async = false;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+
+                    content.appendChild(newScript);
+                    oldScript.remove();
+                });
+
+                // ← إعادة تشغيل دوال الصفحة بعد التحميل
+                if (typeof initAddAccount === "function") {
+                    initAddAccount();
+                }
+            })
+            .catch(err => console.error('Error loading add_account:', err));
+    });
+});
+    // فتح شجرة الحسابات داخل content-area
+    document.querySelectorAll('a[href="account_tree"]').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // تغيير العنوان
+            const title = this.getAttribute('data-title');
+            const path = this.getAttribute('data-path');
+            if (title && path) {
+                setPageTitle(title, path);
+            }
+
+            fetch('/account_tree')
+                .then(response => response.text())
+                .then(html => {
+                    const content = document.querySelector('.content-area');
+                    content.innerHTML = html;
+
+                    // بعد ما الصفحة تتحمل، شغّل دالة تبني الشجرة
+                    initAccountTree();
+                    
+                    // ⬅ شغّل الزراير بعد شوية
+                    setTimeout(() => {
+                        initAccountTreeButtons();
+                    }, 300);
+                })
+                .catch(err => console.error('Error loading account_tree:', err));
+        });
+    });
+
+}); // <-- نهاية DOMContentLoaded هنا بس
+
+// دالة بناء الشجرة (برّه DOMContentLoaded عادي)
+function initAccountTree() {
+    fetch('/account_tree_json')
+      .then(res => res.json())
+      .then(accounts => {
+        function buildTree(data, parentId = 0, depth = 0) {
+            const ul = document.createElement("ul");
+            
+            data.filter(acc => acc.parent === parentId).forEach(acc => {
+                const li = document.createElement("li");
+                const span = document.createElement("span");
+                
+                // نبني الأطفال الأول
+                const children = buildTree(data, acc.id, depth + 1);
+                const hasChildren = children.children.length > 0;
+                
+                // نضيف نفس الكلاس على كل العناصر
+                span.classList.add("toggle");
+                
+                // اللون الأحمر للمستوى الرئيسي (عمق 0)
+                if (depth === 0) {
+                    span.style.color = "red";
+                }
+                
+                // حجم الخط يصغر كل ما ننزل مستوى
+                // المستوى الرئيسي: 18px، كل مستوى: -2px
+                const fontSize = Math.max(12, 18 - (depth * 2));
+                span.style.fontSize = fontSize + "px";
+                
+                if (hasChildren) {
+                    span.textContent = "+ " + acc.name;
+                    
+                    children.classList.add("children");
+                    
+                    span.addEventListener("click", () => {
+                        children.style.display = (children.style.display === "block") ? "none" : "block";
+                        span.textContent = (children.style.display === "block") ? "- " + acc.name : "+ " + acc.name;
+                    });
+                    
+                    li.appendChild(span);
+                    li.appendChild(children);
+                } else {
+                    span.textContent = acc.name;
+                    li.appendChild(span);
+                }
+                
+                ul.appendChild(li);
+            });
+            
+            return ul;
+        }
+
+        const treeDiv = document.getElementById("tree");
+        treeDiv.innerHTML = "";
+        treeDiv.appendChild(buildTree(accounts));
+      })
+      .catch(err => console.error("Error loading accounts:", err));
+}
+// دالة تغيير العنوان (برّه DOMContentLoaded عادي)
+function setPageTitle(title, path) {
+    const pageTitle = document.getElementById("page-title");
+    pageTitle.innerHTML = path + " 🡄 " + title;
+}
+
+// دالة شغّل الزراير بتاعة شجرة الحسابات
+function initAccountTreeButtons() {
+    // زرار لم الكل
+    const collapseBtn = document.getElementById("collapseAll");
+    if (collapseBtn) {
+        collapseBtn.addEventListener("click", () => {
+            document.querySelectorAll(".children").forEach(child => {
+                child.style.display = "none";
+            });
+            document.querySelectorAll(".toggle").forEach(toggle => {
+                if (toggle.textContent.startsWith("-")) {
+                    toggle.textContent = "+ " + toggle.textContent.substring(2);
+                }
+            });
+        });
+    }
+    
+    // زرار فرد الكل
+    const expandBtn = document.getElementById("expandAll");
+    if (expandBtn) {
+        expandBtn.addEventListener("click", () => {
+            document.querySelectorAll(".children").forEach(child => {
+                child.style.display = "block";
+            });
+            document.querySelectorAll(".toggle").forEach(toggle => {
+                if (toggle.textContent.startsWith("+")) {
+                    toggle.textContent = "- " + toggle.textContent.substring(2);
+                }
+            });
+        });
+    }
+    
+    // زرار إضافة حساب
+    const addBtn = document.getElementById("addAccount");
+    if (addBtn) {
+        addBtn.addEventListener("click", () => {
+            alert("هنا هيفتح نموذج إضافة حساب جديد");
+        });
+    }
+    
+
+    // مربع البحث
+    const searchBox = document.getElementById("searchTree");
+    if (searchBox) {
+        searchBox.addEventListener("input", (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            // لو مفيش حاجة مكتوبة، ارجع كل حاجة زي ما كانت
+            if (searchTerm === "") {
+                document.querySelectorAll("#tree li").forEach(li => {
+                    li.style.display = "block";
+                    const span = li.querySelector("span");
+                    if (span) {
+                        const text = span.textContent;
+                        if (text.startsWith("+ ") || text.startsWith("- ")) {
+                            span.innerHTML = text.substring(0, 2) + text.substring(2);
+                        } else {
+                            span.innerHTML = text;
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // اول حاجة: خفي كل العناصر
+            document.querySelectorAll("#tree li").forEach(li => {
+                li.style.display = "none";
+            });
+            
+            // تاني حاجة: نظهر العناصر اللي فيها الحرف والأباء بتاعها
+            document.querySelectorAll("#tree li").forEach(li => {
+                const span = li.querySelector("span");
+                if (!span) return;
+                
+                const text = span.textContent.toLowerCase();
+                const originalText = span.textContent;
+                
+                // افصل العلامة عن الاسم
+                let prefix = "";
+                let name = originalText;
+                
+                if (originalText.startsWith("+ ") || originalText.startsWith("- ")) {
+                    prefix = originalText.substring(0, 2);
+                    name = originalText.substring(2);
+                }
+                
+                if (text.includes(searchTerm)) {
+                    // نظهر العنصر ده
+                    li.style.display = "block";
+                    
+                    // نظهر الأباء بتاعه
+                    let parent = li.parentElement;
+                    while (parent && parent.id !== "tree") {
+                        if (parent.tagName === "UL") {
+                            const parentLi = parent.parentElement;
+                            if (parentLi && parentLi.tagName === "LI") {
+                                parentLi.style.display = "block";
+                                // افتح القائمة الفرعية
+                                parent.style.display = "block";
+                            }
+                        }
+                        parent = parent.parentElement;
+                    }
+                    
+                    // ظلل الجزء المطابق في الاسم بس
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    const highlightedName = name.replace(regex, '<mark style="background-color: #ffeb3b; color: #000;">$1</mark>');
+                    span.innerHTML = prefix + highlightedName;
+                } else {
+                    // شيل التظليل
+                    span.innerHTML = prefix + name;
+                }
+            });
+        });
+    }
+}
+</script>
+</body>
+</html>

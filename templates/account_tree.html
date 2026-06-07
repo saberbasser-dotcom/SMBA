@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <meta charset="UTF-8">
+    <title>شجرة الحسابات</title>
+    <style>
+        /* الـ css القديم */
+        ul { list-style: none; padding-left: 20px; }
+        li { margin: 5px 0; }
+        .toggle {
+            cursor: pointer;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .children {
+            display: none;
+            margin-right: 20px;
+        }
+        
+        /* الـ css الجديد للخطوط */
+        #tree ul {
+            list-style: none;
+            padding-right: 20px;
+            position: relative;
+            margin-top: 5px;    /* نضيف ده */
+            margin-bottom: 0;   /* نضيف ده */
+        }
+
+        #tree ul::before {
+            content: "";
+            position: absolute;
+            right: 18px;
+            top: 2px;          /* غيرنا من 0 لـ 5 */
+            bottom: 11px;       /* غيرنا من 0 لـ 5 */
+            width: 2px;
+            background-color: #ccc;
+            
+        }
+
+        #tree li {
+            position: relative;
+            padding-right: 20px;
+            margin: 5px 0;
+            line-height: 1.5;  /* نضيف ده عشان نتحكم في الارتفاع */
+        }
+
+        #tree li::before {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 12px;
+            width: 15px;
+            height: 1px;
+            background-color: #ccc;
+        }
+
+        #tree li:last-child::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 1px;
+            height: 12px;
+            background-color: #fff;
+        }
+        /* القائمة الرئيسية بس - نخفي الخطوط */
+        #tree > ul::before {
+            display: none;
+        }
+
+        #tree > ul > li::before {
+            display: none;
+        }
+        html, body {
+           height: 100%;
+           margin: 0;
+           padding: 0;
+           overflow-y: auto;
+}
+    </style>
+</head>
+<body>
+    <!-- ... باقي الكود ... -->
+</body>
+</html>
+
+    <div style="position: sticky; top: 0; background: rgb(207, 192, 192); padding: 4px; z-index: 100; display: flex; align-items: center; gap: 10px; width: 98%; margin-bottom: 20px;margin-left: auto;">
+    <h3 style="margin: 0;"></h3>
+    <button id="expandAll" style="padding: 5px 10px; border: 4px solid #ccc; border-radius: 4px; cursor: pointer;">▼ Expand</button>
+    <button id="collapseAll" style="padding: 5px 10px; border: 4px solid #ccc; border-radius: 4px; cursor: pointer;">▲ Collapse</button>
+    <div style="position: relative; display: inline-block;">
+    <input type="text" id="searchTree" placeholder="بحث..." style="padding: 8px 35px 8px 10px; width: 400px; border: 1px solid #ccc; border-radius: 20px; outline: none;">
+    <i class="fas fa-search" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #666; font-size: 14px;"></i>
+    </div>
+    <button id="addAccount" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background: #1976d2; color: white;margin-right: auto;">+ إضافة حساب</button>
+</div>
+
+    <div id="tree" style="margin-top: 0;"></div>
+    
+<script>
+function initAccountTreePage() {
+    // نستنى شوية عشان الزراير تظهر
+    setTimeout(() => {
+        // تحميل البيانات من السيرفر
+        fetch('/account_tree_json')
+          .then(res => res.json())
+          .then(accounts => {
+
+            function buildTree(data, parentId=0) {
+                const ul = document.createElement("ul");
+                data.filter(acc => acc.parent === parentId).forEach(acc => {
+                    const li = document.createElement("li");
+                    const span = document.createElement("span");
+                    span.textContent = "+ " + acc.name;
+                    span.classList.add("toggle");
+
+                    const children = buildTree(data, acc.id);
+                    children.classList.add("children");
+
+                    span.addEventListener("click", () => {
+                        children.style.display = (children.style.display === "block") ? "none" : "block";
+                    });
+
+                    li.appendChild(span);
+                    if (children.children.length > 0) {
+                        li.appendChild(children);
+                    }
+                    ul.appendChild(li);
+                });
+                return ul;
+            }
+
+            document.getElementById("tree").appendChild(buildTree(accounts));
+          })
+          .catch(err => console.error("Error loading accounts:", err));
+
+        // زرار لم الكل
+        const collapseBtn = document.getElementById("collapseAll");
+        if (collapseBtn) {
+            collapseBtn.addEventListener("click", () => {
+                document.querySelectorAll(".children").forEach(child => {
+                    child.style.display = "none";
+                });
+                document.querySelectorAll(".toggle").forEach(toggle => {
+                    if (toggle.textContent.startsWith("-")) {
+                        toggle.textContent = "+ " + toggle.textContent.substring(2);
+                    }
+                });
+            });
+        }
+    }, 500); // نستنى نص ثانية
+}
+// مربع البحث باللون الأصفر
+const searchBox = document.getElementById("searchTree");
+if (searchBox) {
+    searchBox.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        
+        // لو مفيش حاجة مكتوبة، ارجع كل حاجة زي ما كانت
+        if (searchTerm === "") {
+            document.querySelectorAll("#tree li").forEach(li => {
+                li.style.display = "block";
+                const span = li.querySelector("span");
+                if (span) {
+                    span.style.backgroundColor = "";
+                    span.style.color = "";
+                    span.style.padding = "";
+                    span.style.borderRadius = "";
+                }
+            });
+            return;
+        }
+        
+        document.querySelectorAll("#tree li").forEach(li => {
+            const span = li.querySelector("span");
+            if (!span) return;
+            
+            const text = span.textContent.toLowerCase();
+            
+            if (text.includes(searchTerm)) {
+                li.style.display = "block";
+                span.style.backgroundColor = "#ffeb3b";
+                span.style.color = "#000";
+                span.style.padding = "2px 5px";
+                span.style.borderRadius = "3px";
+            } else {
+                li.style.display = "none";
+                span.style.backgroundColor = "";
+                span.style.color = "";
+                span.style.padding = "";
+                span.style.borderRadius = "";
+            }
+        });
+    });
+}
+</script>
+</body>
+</html>
