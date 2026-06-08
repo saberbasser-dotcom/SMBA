@@ -1,1 +1,1 @@
-web: gunicorn app:app
+web: apt-get install -y libpq-dev && gunicorn app:app
