@@ -1,28 +1,14 @@
 from flask import Flask, render_template, request, jsonify
-import psycopg2
+import sqlite3
 from datetime import datetime
 import os
 
 app = Flask(__name__)
 print("🔥 APP RUNNING 🔥")
 
-# 🔹 إعداد الاتصال بقاعدة البيانات Supabase (PostgreSQL)
+# 🔹 إعداد الاتصال بقاعدة البيانات SQLite
 def get_connection():
-    # أولاً: جرب DATABASE_URL من Railway (Supabase)
-    database_url = os.environ.get('DATABASE_URL')
-    if database_url:
-        return psycopg2.connect(database_url)
-
-    # Fallback: استخدم الـ details الثابتة (للتطوير المحلي)
-    return psycopg2.connect(
-        host="db.texzdzbcaaatgorlkeupw.supabase.co",
-        database="postgres",
-        user="postgres",
-        password=os.getenv("DB_PASSWORD"),
-        port="5432"
-    )
-
-
+    return sqlite3.connect('/home/Saberbasser/SMBA/database.db')
 
 # 🏠 الصفحة الرئيسية
 @app.route('/')
@@ -31,7 +17,6 @@ def home():
 
 @app.route('/cash_receive')
 def cash_receive():
-
     return render_template('cash_receive.html')
 
 @app.route('/account_tree_json')
@@ -55,7 +40,6 @@ def account_tree():
 # 📌 صفحة القبض النقدية
 @app.route('/save_receipt', methods=['POST'])
 def save_receipt():
-
     try:
         data = request.form
 
@@ -84,13 +68,12 @@ def save_receipt():
 
         now_time = datetime.now()
 
-        # ✅ تعديل: استخدم %s بدلاً من ? (PostgreSQL)
         insert_query = """
         INSERT INTO CASH_HEAD
         (GeneralEntryNo, DepartmentEntryNo, BranchEntryNo, TranscationType, MovementType,
         ReceiptNo, DepartmentID, BranchID, UserID, PrintCopies, Status, Credit_Acc,
         Amount, DATE, EditTime, LastEdit, Notes)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
         cursor.execute(insert_query, (
@@ -122,12 +105,10 @@ def save_receipt():
         print(details_debit)
 
         for i in range(len(details_amount)):
-
-            # ✅ تعديل: استخدم %s بدلاً من ? (PostgreSQL)
             cursor.execute("""
                 INSERT INTO CASH_DETAILS
                 (GeneralEntryNo, Debit, Amount1, ItemNote)
-                VALUES (%s, %s, %s, %s)
+                VALUES (?, ?, ?, ?)
             """, (
                 new_no,
                 int(details_debit[i] or 0),
@@ -173,22 +154,19 @@ def save_account():
         conn = get_connection()
         cursor = conn.cursor()
 
-        # ✅ تعديل: استخدم %s بدلاً من ? (PostgreSQL)
-        cursor.execute("SELECT COUNT(*) FROM ACC_TR WHERE Account_ID = %s", (account_code,))
+        cursor.execute("SELECT COUNT(*) FROM ACC_TR WHERE Account_ID = ?", (account_code,))
         exists = cursor.fetchone()[0] > 0
 
         if exists:
-            # ✅ تعديل: استخدم %s بدلاً من ? (PostgreSQL)
             cursor.execute("""
                 UPDATE ACC_TR 
-                SET TreeAccount_Name = %s, TreeAccount_ID = %s, Active1 = %s, Level1 = %s, IsParent = %s, type = %s
-                WHERE Account_ID = %s
+                SET TreeAccount_Name = ?, TreeAccount_ID = ?, Active1 = ?, Level1 = ?, IsParent = ?, type = ?
+                WHERE Account_ID = ?
             """, (account_name, parent_id, active1, level1, is_parent, type_val, account_code))
         else:
-            # ✅ تعديل: استخدم %s بدلاً من ? (PostgreSQL)
             cursor.execute("""
                 INSERT INTO ACC_TR (Account_ID, TreeAccount_Name, TreeAccount_ID, Active1, Level1, IsParent, type)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (account_code, account_name, parent_id, active1, level1, is_parent, type_val))
 
         conn.commit()
@@ -206,8 +184,6 @@ def save_account():
             "message": str(e)
         })
 
-
-# 🟢 تشغيل السيرفر (معدل للـ Railway)
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
